@@ -1,4 +1,4 @@
-package podcast
+package listennotes
 
 import (
 	"net/http"
@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// ResponseStatistics will contain the stats information provided by API response headers
 type ResponseStatistics struct {
 	FreeQuota       *int
 	Usage           *int

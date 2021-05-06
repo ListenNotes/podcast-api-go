@@ -1,4 +1,4 @@
-package podcast
+package listennotes
 
 import (
 	"fmt"
