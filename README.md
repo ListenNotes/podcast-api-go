@@ -10,3 +10,9 @@ Simple and no-nonsense podcast search & directory API. Search the meta data of a
 If you have any questions, please contact [hello@listennotes.com](hello@listennotes.com?subject=Questions+about+the+Go+SDK+of+Listen+API)
 
 <a href="https://www.listennotes.com/api/"><img src="https://raw.githubusercontent.com/ListenNotes/ListenApiDemo/master/web/src/powered_by_listennotes.png" width="300" /></a>
+
+## Installation
+
+### Requirements
+
+- Go 1.10+
