@@ -42,5 +42,5 @@ func NewClient(apiKey string, opts ...ClientOption) HTTPClient {
 }
 
 func (c *standardHTTPClient) Search(args map[string]string) (*Response, error) {
-	return c.execute(args, "search")
+	return c.get(args, "search")
 }
