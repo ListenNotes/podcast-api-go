@@ -15,4 +15,4 @@ If you have any questions, please contact [hello@listennotes.com](hello@listenno
 
 ### Requirements
 
-- Go 1.10+
+- Go 1.13+
