@@ -12,23 +12,23 @@ import (
 // HTTPClient is the client interface
 type HTTPClient interface {
 	Search(args map[string]string) (*Response, error)
-	TypeAhead(args map[string]string) (*Response, error)
-	BestPodCasts(args map[string]string) (*Response, error)
+	Typeahead(args map[string]string) (*Response, error)
+	FetchBestPodcasts(args map[string]string) (*Response, error)
 	FetchPodcastByID(id string, args map[string]string) (*Response, error)
 	FetchEpisodeByID(id string, args map[string]string) (*Response, error)
-	BatchFetchEpisodesByID(ids []string, args map[string]string) (*Response, error)
-	BatchFetchPodcastsByID(ids []string, args map[string]string) (*Response, error)
-	FetchCuratedPodcastsByID(id string, args map[string]string) (*Response, error)
-	Genres(args map[string]string) (*Response, error)
-	Regions(args map[string]string) (*Response, error)
-	Languages(args map[string]string) (*Response, error)
+	BatchFetchEpisodes(ids []string, args map[string]string) (*Response, error)
+	BatchFetchPodcasts(ids []string, args map[string]string) (*Response, error)
+	FetchCuratedPodcastsListByID(id string, args map[string]string) (*Response, error)
+	FetchPodcastGenres(args map[string]string) (*Response, error)
+	FetchPodcastRegions(args map[string]string) (*Response, error)
+	FetchPodcastLanguages(args map[string]string) (*Response, error)
 	JustListen(args map[string]string) (*Response, error)
-	CuratedPodcasts(args map[string]string) (*Response, error)
-	PodcastRecommendations(id string, args map[string]string) (*Response, error)
-	EpisodeRecommendations(id string, args map[string]string) (*Response, error)
-	Playlists(args map[string]string) (*Response, error)
+	FetchCuratedPodcastsLists(args map[string]string) (*Response, error)
+	FetchRecommendationsForPodcast(id string, args map[string]string) (*Response, error)
+	FetchRecommendationsForEpisode(id string, args map[string]string) (*Response, error)
+	FetchMyPlaylists(args map[string]string) (*Response, error)
 	FetchPlaylistByID(id string, args map[string]string) (*Response, error)
-	CreatePodcast(args map[string]string) (*Response, error)
+	SubmitPodcast(args map[string]string) (*Response, error)
 	DeletePodcast(id string, args map[string]string) (*Response, error)
 }
 
@@ -66,11 +66,11 @@ func (c *standardHTTPClient) Search(args map[string]string) (*Response, error) {
 	return c.get("search", args)
 }
 
-func (c *standardHTTPClient) TypeAhead(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) Typeahead(args map[string]string) (*Response, error) {
 	return c.get("typeahead", args)
 }
 
-func (c *standardHTTPClient) BestPodCasts(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchBestPodcasts(args map[string]string) (*Response, error) {
 	return c.get("best_podcasts", args)
 }
 
@@ -82,31 +82,31 @@ func (c *standardHTTPClient) FetchEpisodeByID(id string, args map[string]string)
 	return c.get(fmt.Sprintf("episodes/%s", id), args)
 }
 
-func (c *standardHTTPClient) BatchFetchEpisodesByID(ids []string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) BatchFetchEpisodes(ids []string, args map[string]string) (*Response, error) {
 	return c.post("episodes", args, url.Values{
 		"ids": []string{strings.Join(ids, ",")},
 	})
 }
 
-func (c *standardHTTPClient) BatchFetchPodcastsByID(ids []string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) BatchFetchPodcasts(ids []string, args map[string]string) (*Response, error) {
 	return c.post("podcasts", args, url.Values{
 		"ids": []string{strings.Join(ids, ",")},
 	})
 }
 
-func (c *standardHTTPClient) FetchCuratedPodcastsByID(id string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchCuratedPodcastsListByID(id string, args map[string]string) (*Response, error) {
 	return c.get(fmt.Sprintf("curated_podcasts/%s", id), args)
 }
 
-func (c *standardHTTPClient) Genres(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchPodcastGenres(args map[string]string) (*Response, error) {
 	return c.get("genres", args)
 }
 
-func (c *standardHTTPClient) Regions(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchPodcastRegions(args map[string]string) (*Response, error) {
 	return c.get("regions", args)
 }
 
-func (c *standardHTTPClient) Languages(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchPodcastLanguages(args map[string]string) (*Response, error) {
 	return c.get("languages", args)
 }
 
@@ -114,19 +114,19 @@ func (c *standardHTTPClient) JustListen(args map[string]string) (*Response, erro
 	return c.get("just_listen", args)
 }
 
-func (c *standardHTTPClient) CuratedPodcasts(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchCuratedPodcastsLists(args map[string]string) (*Response, error) {
 	return c.get("curated_podcasts", args)
 }
 
-func (c *standardHTTPClient) PodcastRecommendations(id string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchRecommendationsForPodcast(id string, args map[string]string) (*Response, error) {
 	return c.get(fmt.Sprintf("podcasts/%s/recommendations", id), args)
 }
 
-func (c *standardHTTPClient) EpisodeRecommendations(id string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchRecommendationsForEpisode(id string, args map[string]string) (*Response, error) {
 	return c.get(fmt.Sprintf("episodes/%s/recommendations", id), args)
 }
 
-func (c *standardHTTPClient) Playlists(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) FetchMyPlaylists(args map[string]string) (*Response, error) {
 	return c.get("playlists", args)
 }
 
@@ -134,7 +134,7 @@ func (c *standardHTTPClient) FetchPlaylistByID(id string, args map[string]string
 	return c.get(fmt.Sprintf("playlists/%s", id), args)
 }
 
-func (c *standardHTTPClient) CreatePodcast(args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) SubmitPodcast(args map[string]string) (*Response, error) {
 	values := url.Values{}
 	for k, v := range args {
 		values.Set(k, v)

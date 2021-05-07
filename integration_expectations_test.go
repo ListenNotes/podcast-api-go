@@ -41,7 +41,7 @@ func TestSearchIntegration(t *testing.T) {
 			Args: map[string]string{
 				"q": "term",
 			},
-			ExecuteFunc: client.TypeAhead,
+			ExecuteFunc: client.Typeahead,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectCollection(resp, "terms", 2)
@@ -56,7 +56,7 @@ func TestSearchIntegration(t *testing.T) {
 			Args: map[string]string{
 				"genre_id": "93",
 			},
-			ExecuteFunc: client.BestPodCasts,
+			ExecuteFunc: client.FetchBestPodcasts,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectData(resp, "name", "Business")
@@ -99,7 +99,7 @@ func TestSearchIntegration(t *testing.T) {
 			Path:   "episodes",
 			Args:   map[string]string{},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.BatchFetchEpisodesByID([]string{"123", "456"}, args)
+				return client.BatchFetchEpisodes([]string{"123", "456"}, args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -114,7 +114,7 @@ func TestSearchIntegration(t *testing.T) {
 				"show_latest_episodes": "1",
 			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.BatchFetchPodcastsByID([]string{"123", "456"}, args)
+				return client.BatchFetchPodcasts([]string{"123", "456"}, args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -127,7 +127,7 @@ func TestSearchIntegration(t *testing.T) {
 			Path:   "curated_podcasts/SDFKduyJ47r",
 			Args:   map[string]string{},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.FetchCuratedPodcastsByID("SDFKduyJ47r", args)
+				return client.FetchCuratedPodcastsListByID("SDFKduyJ47r", args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -143,7 +143,7 @@ func TestSearchIntegration(t *testing.T) {
 			Args: map[string]string{
 				"top_level_only": "1",
 			},
-			ExecuteFunc: client.Genres,
+			ExecuteFunc: client.FetchPodcastGenres,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectNoError(respErr)
@@ -155,7 +155,7 @@ func TestSearchIntegration(t *testing.T) {
 			Method:      "GET",
 			Path:        "regions",
 			Args:        map[string]string{},
-			ExecuteFunc: client.Regions,
+			ExecuteFunc: client.FetchPodcastRegions,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectMap(resp, "regions", 67)
@@ -166,7 +166,7 @@ func TestSearchIntegration(t *testing.T) {
 			Method:      "GET",
 			Path:        "languages",
 			Args:        map[string]string{},
-			ExecuteFunc: client.Languages,
+			ExecuteFunc: client.FetchPodcastLanguages,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectCollection(resp, "languages", 20)
@@ -190,7 +190,7 @@ func TestSearchIntegration(t *testing.T) {
 			Args: map[string]string{
 				"page": "2",
 			},
-			ExecuteFunc: client.CuratedPodcasts,
+			ExecuteFunc: client.FetchCuratedPodcastsLists,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectData(resp, "has_previous", true)
@@ -206,7 +206,7 @@ func TestSearchIntegration(t *testing.T) {
 				"safe_mode": "0",
 			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.PodcastRecommendations("25212ac3c53240a880dd5032e547047b", args)
+				return client.FetchRecommendationsForPodcast("25212ac3c53240a880dd5032e547047b", args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -221,7 +221,7 @@ func TestSearchIntegration(t *testing.T) {
 				"page": "2",
 			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.EpisodeRecommendations("254444fa6cf64a43a95292a70eb6869b", args)
+				return client.FetchRecommendationsForEpisode("254444fa6cf64a43a95292a70eb6869b", args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -235,7 +235,7 @@ func TestSearchIntegration(t *testing.T) {
 			Args: map[string]string{
 				"sort": "recent_added_first",
 			},
-			ExecuteFunc: client.Playlists,
+			ExecuteFunc: client.FetchMyPlaylists,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectData(resp, "has_previous", false)
@@ -267,7 +267,7 @@ func TestSearchIntegration(t *testing.T) {
 				"email": "hello@example.com",
 			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.CreatePodcast(args)
+				return client.SubmitPodcast(args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
