@@ -35,7 +35,22 @@ func expectCollection(resp *listennotes.Response, collectionKey string, expected
 
 	results, ok := resp.Data[collectionKey].([]interface{})
 	if !ok {
-		panic(fmt.Errorf("no results"))
+		panic(fmt.Errorf("collection Key %s not found", collectionKey))
+	}
+
+	if len(results) != expectedCount {
+		panic(fmt.Errorf("expected %d results, but got %d", expectedCount, len(results)))
+	}
+}
+
+func expectMap(resp *listennotes.Response, mapKey string, expectedCount int) {
+	if resp == nil {
+		panic(fmt.Errorf("no response"))
+	}
+
+	results, ok := resp.Data[mapKey].(map[string]interface{})
+	if !ok {
+		panic(fmt.Errorf("map Key %s not found", mapKey))
 	}
 
 	if len(results) != expectedCount {
@@ -49,7 +64,7 @@ func expectData(resp *listennotes.Response, key string, expectedValue interface{
 		panic(fmt.Errorf("no data at %s", key))
 	}
 	if actual != expectedValue {
-		panic(fmt.Errorf("expected %v got %v", expectedValue, actual))
+		panic(fmt.Errorf("expected (%T)%v got (%T)%v", expectedValue, expectedValue, actual, actual))
 	}
 }
 

@@ -12,8 +12,23 @@ import (
 // HTTPClient is the client interface
 type HTTPClient interface {
 	Search(args map[string]string) (*Response, error)
+	TypeAhead(args map[string]string) (*Response, error)
+	BestPodCasts(args map[string]string) (*Response, error)
 	FetchPodcastByID(id string, args map[string]string) (*Response, error)
-	BatchFetchPodcastByID(ids []string, args map[string]string) (*Response, error)
+	FetchEpisodeByID(id string, args map[string]string) (*Response, error)
+	BatchFetchEpisodesByID(ids []string, args map[string]string) (*Response, error)
+	BatchFetchPodcastsByID(ids []string, args map[string]string) (*Response, error)
+	FetchCuratedPodcastsByID(id string, args map[string]string) (*Response, error)
+	Genres(args map[string]string) (*Response, error)
+	Regions(args map[string]string) (*Response, error)
+	Languages(args map[string]string) (*Response, error)
+	JustListen(args map[string]string) (*Response, error)
+	CuratedPodcasts(args map[string]string) (*Response, error)
+	PodcastRecommendations(id string, args map[string]string) (*Response, error)
+	EpisodeRecommendations(id string, args map[string]string) (*Response, error)
+	Playlists(args map[string]string) (*Response, error)
+	FetchPlaylistByID(id string, args map[string]string) (*Response, error)
+	CreatePodcast(args map[string]string) (*Response, error)
 	DeletePodcast(id string, args map[string]string) (*Response, error)
 }
 
@@ -51,50 +66,81 @@ func (c *standardHTTPClient) Search(args map[string]string) (*Response, error) {
 	return c.get("search", args)
 }
 
-// GET /typeahead
+func (c *standardHTTPClient) TypeAhead(args map[string]string) (*Response, error) {
+	return c.get("typeahead", args)
+}
 
-// GET /best_podcasts
+func (c *standardHTTPClient) BestPodCasts(args map[string]string) (*Response, error) {
+	return c.get("best_podcasts", args)
+}
 
 func (c *standardHTTPClient) FetchPodcastByID(id string, args map[string]string) (*Response, error) {
 	return c.get(fmt.Sprintf("podcasts/%s", id), args)
 }
 
-// GET /episodes/{id}
+func (c *standardHTTPClient) FetchEpisodeByID(id string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("episodes/%s", id), args)
+}
 
-// POST /episodes
-func (c *standardHTTPClient) BatchFetchPodcastByID(ids []string, args map[string]string) (*Response, error) {
+func (c *standardHTTPClient) BatchFetchEpisodesByID(ids []string, args map[string]string) (*Response, error) {
 	return c.post("episodes", args, url.Values{
 		"ids": []string{strings.Join(ids, ",")},
 	})
 }
 
-// POST /podcasts
+func (c *standardHTTPClient) BatchFetchPodcastsByID(ids []string, args map[string]string) (*Response, error) {
+	return c.post("podcasts", args, url.Values{
+		"ids": []string{strings.Join(ids, ",")},
+	})
+}
 
-// GET /curated_podcasts/{id}
+func (c *standardHTTPClient) FetchCuratedPodcastsByID(id string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("curated_podcasts/%s", id), args)
+}
 
-// GET /genres
+func (c *standardHTTPClient) Genres(args map[string]string) (*Response, error) {
+	return c.get("genres", args)
+}
 
-// GET /regions
+func (c *standardHTTPClient) Regions(args map[string]string) (*Response, error) {
+	return c.get("regions", args)
+}
 
-// GET /languages
+func (c *standardHTTPClient) Languages(args map[string]string) (*Response, error) {
+	return c.get("languages", args)
+}
 
-// GET /just_listen
+func (c *standardHTTPClient) JustListen(args map[string]string) (*Response, error) {
+	return c.get("just_listen", args)
+}
 
-// GET /curated_podcasts
+func (c *standardHTTPClient) CuratedPodcasts(args map[string]string) (*Response, error) {
+	return c.get("curated_podcasts", args)
+}
 
-// GET /podcats/{id}/recommendations
+func (c *standardHTTPClient) PodcastRecommendations(id string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("podcasts/%s/recommendations", id), args)
+}
 
-// GET /episodes/{id}/recommendations
+func (c *standardHTTPClient) EpisodeRecommendations(id string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("episodes/%s/recommendations", id), args)
+}
 
-// GET /playlists
+func (c *standardHTTPClient) Playlists(args map[string]string) (*Response, error) {
+	return c.get("playlists", args)
+}
 
-// GET /playlists/{id}
+func (c *standardHTTPClient) FetchPlaylistByID(id string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("playlists/%s", id), args)
+}
 
-// POST /podcasts/submit
-
-// -H 'Content-Type: application/x-www-form-urlencoded'\
-// -d 'rss=https://feeds.megaphone.fm/committed'\
-// -d 'email=hello@example.com'
+func (c *standardHTTPClient) CreatePodcast(args map[string]string) (*Response, error) {
+	values := url.Values{}
+	for k, v := range args {
+		values.Set(k, v)
+	}
+	return c.post("podcasts/submit", args, values)
+}
 
 func (c *standardHTTPClient) DeletePodcast(id string, args map[string]string) (*Response, error) {
 	return c.delete(fmt.Sprintf("podcasts/%s", id), args)
