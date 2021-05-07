@@ -2,6 +2,7 @@ package listennotes_test
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
 	listennotes "github.com/ListenNotes/podcast-api-go"
@@ -24,7 +25,12 @@ func TestSearchIntegration(t *testing.T) {
 		t.Skip("skipping integration test")
 	}
 
-	client := listennotes.NewClient("")
+	rt := &integrationTestRoundTripper{}
+	httpClient := &http.Client{
+		Transport: rt,
+	}
+
+	client := listennotes.NewClient("", listennotes.WithHTTPClient(httpClient))
 
 	expectations := []integrationExpectation{
 		{
@@ -48,11 +54,23 @@ func TestSearchIntegration(t *testing.T) {
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
-					t.Errorf("Execution [%d] %s failed expectation: %v", idx, exp.Path, r)
+					t.Errorf("[%d] %s failed expectation: %v", idx, exp.Path, r)
 				}
 			}()
 			if err := exp.ValidateFunc(resp, err); err != nil {
-				t.Errorf("Execution [%d] %s validation failed: %s", idx, exp.Path, err)
+				t.Errorf("[%d] %s validation failed: %s", idx, exp.Path, err)
+			}
+			expectedPath := fmt.Sprintf("/api/v2/%s", exp.Path)
+			if rt.LastRequest.URL.Path != expectedPath {
+				t.Errorf("[%d] %s had unexpected Path: %s", idx, exp.Path, rt.LastRequest.URL.Path)
+			}
+			if rt.LastRequest.Method != exp.Method {
+				t.Errorf("[%d] %s had unexpected Method: %s", idx, exp.Path, rt.LastRequest.Method)
+			}
+			for qk, qv := range exp.Args {
+				if rt.LastRequest.URL.Query().Get(qk) != qv {
+					t.Errorf("[%d] %s did not have expected query arg: %s=%s in %s", idx, exp.Path, qk, qv, rt.LastRequest.URL.RawQuery)
+				}
 			}
 		}()
 	}
@@ -95,4 +113,13 @@ func expectNoError(err error) {
 	if err != nil {
 		panic(fmt.Errorf("Expected no error but got: %s", err))
 	}
+}
+
+type integrationTestRoundTripper struct {
+	LastRequest *http.Request
+}
+
+func (rt *integrationTestRoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
+	rt.LastRequest = req
+	return http.DefaultTransport.RoundTrip(req)
 }

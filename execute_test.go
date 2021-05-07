@@ -12,7 +12,7 @@ func TestStandardClientExecuteNewReqFailure(t *testing.T) {
 	client := &standardHTTPClient{
 		baseURL: "http://localhost:bogus",
 	}
-	_, err := client.execute(map[string]string{}, "path")
+	_, err := client.get(map[string]string{}, "path")
 	if err == nil || !strings.Contains(err.Error(), "invalid port ") {
 		t.Errorf("Expected url parse failure but got: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestMappedErrors(t *testing.T) {
 
 	for _, e := range errs {
 		expectedCode = e.code
-		_, err := client.execute(map[string]string{}, "path")
+		_, err := client.get(map[string]string{}, "path")
 		if (e.err == nil && err != nil) || (e.err != nil && !errors.Is(err, e.err)) {
 			t.Errorf("%d reponse code did not result in correct error: %s", e.code, err)
 		}
@@ -69,7 +69,7 @@ func TestDecodeError(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	_, err := client.execute(map[string]string{}, "path")
+	_, err := client.get(map[string]string{}, "path")
 	if err == nil || !strings.Contains(err.Error(), "failed parsing the response") {
 		t.Errorf("Expected json parse failure but got: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestGetQueryArguments(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	client.execute(map[string]string{
+	client.get(map[string]string{
 		"a": "b",
 		"c": "d",
 	}, "path")
@@ -110,7 +110,7 @@ func TestParsedResponse(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	resp, err := client.execute(map[string]string{
+	resp, err := client.get(map[string]string{
 		"a": "b",
 		"c": "d",
 	}, "path")

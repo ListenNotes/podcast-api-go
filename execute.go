@@ -12,7 +12,7 @@ type Response struct {
 	Data  map[string]interface{}
 }
 
-func (c *standardHTTPClient) execute(args map[string]string, path string) (*Response, error) {
+func (c *standardHTTPClient) get(args map[string]string, path string) (*Response, error) {
 	url := fmt.Sprintf("%s/%s", c.baseURL, path)
 
 	req, err := http.NewRequest("GET", url, nil)
