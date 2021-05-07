@@ -20,6 +20,9 @@ type Response struct {
 // Note: JSON marshal errors are swallowed here on purpose.  This is for ease of use.
 // Considering this data marshalled from JSON, the risk here is low.  On failure, "" will be returned.
 func (r *Response) ToJSON() string {
+	if r == nil {
+		return ""
+	}
 	jsonResult, err := json.Marshal(r.Data)
 	if err != nil {
 		log.Printf("failed to marshal response data to json: %s", err)

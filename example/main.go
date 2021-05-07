@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	listennotes "github.com/ListenNotes/podcast-api-go"
 )
 
 func main() {
-	client := listennotes.NewClient("")
+	apiKey := os.Getenv("LISTEN_API_KEY")
+
+	client := listennotes.NewClient(apiKey)
 
 	// The test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
 	nextOffset := fetchAndOutputPage(client, 0)
@@ -16,8 +19,12 @@ func main() {
 
 	// You can get the output json easily as well:
 	fmt.Printf("\nRegions:\n")
-	regions, _ := client.FetchPodcastRegions(nil)
-	fmt.Println(regions.ToJSON())
+	regions, err := client.FetchPodcastRegions(nil)
+	if err != nil {
+		fmt.Printf("Failed reading regions: %s\n", err)
+	} else {
+		fmt.Println(regions.ToJSON())
+	}
 }
 
 func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
@@ -48,8 +55,8 @@ func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
 	return nextOffset
 }
 
-// searchResults, _ := client.Search(map[string]string {"q": "star wars"});
+// searchResults, err := client.Search(map[string]string {"q": "star wars"});
 // fmt.Println(searchResults.ToJSON())
 
-// typeaheadResults, _ := client.Typeahead(map[string]string {"q": "star wars"});
+// typeaheadResults, err := client.Typeahead(map[string]string {"q": "star wars"});
 // fmt.Println(typeaheadResults.ToJSON())

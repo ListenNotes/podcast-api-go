@@ -189,6 +189,13 @@ func TestResponseJSON(t *testing.T) {
 		t.Errorf("ToJSON had unexpected result: '%s'", j)
 	}
 }
+func TestNilResponseJSON(t *testing.T) {
+	var resp *Response
+	j := resp.ToJSON()
+	if j != "" {
+		t.Errorf("ToJSON had unexpected respons: '%s'", j)
+	}
+}
 
 func TestResponseJSONParseFailure(t *testing.T) {
 	resp := Response{
