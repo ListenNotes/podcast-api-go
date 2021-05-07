@@ -14,7 +14,6 @@ func main() {
 	// the test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
 	nextOffset := fetchAndOutputPage(client, 0)
 	fetchAndOutputPage(client, nextOffset)
-	fetchAndOutputPage(client, nextOffset)
 }
 
 func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {

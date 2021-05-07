@@ -15,10 +15,8 @@ vet:
 
 .PHONY: test
 test:
-	go test ./...
+	go test -cover ./...
 
 .PHONY: run-example
 run-example:
 	go run example/main.go
-
-# TODO: deal with coverfiles
