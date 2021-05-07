@@ -8,6 +8,10 @@ import (
 )
 
 func TestAuthErrorIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	client := listennotes.NewClient("not-valid")
 	_, err := client.Search(nil)
 	if err != listennotes.ErrUnauthorized {

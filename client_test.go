@@ -53,7 +53,3 @@ func TestProductionURL(t *testing.T) {
 		t.Errorf("mock http client failure was not as expected: %s", err)
 	}
 }
-
-func TestSearch(t *testing.T) {
-
-}
