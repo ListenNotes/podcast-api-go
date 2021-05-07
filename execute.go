@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,6 +14,18 @@ import (
 type Response struct {
 	Stats ResponseStatistics
 	Data  map[string]interface{}
+}
+
+// ToJSON will encode the response data as JSON.
+// Note: JSON marshal errors are swallowed here on purpose.  This is for ease of use.
+// Considering this data marshalled from JSON, the risk here is low.  On failure, "" will be returned.
+func (r *Response) ToJSON() string {
+	jsonResult, err := json.Marshal(r.Data)
+	if err != nil {
+		log.Printf("failed to marshal response data to json: %s", err)
+		return ""
+	}
+	return string(jsonResult)
 }
 
 func (c *standardHTTPClient) get(path string, args map[string]string) (*Response, error) {

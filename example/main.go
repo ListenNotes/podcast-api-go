@@ -8,12 +8,16 @@ import (
 )
 
 func main() {
-
 	client := listennotes.NewClient("")
 
-	// the test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
+	// The test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
 	nextOffset := fetchAndOutputPage(client, 0)
 	fetchAndOutputPage(client, nextOffset)
+
+	// You can get the output json easily as well:
+	fmt.Printf("\nRegions:\n")
+	regions, _ := client.FetchPodcastRegions(nil)
+	fmt.Println(regions.ToJSON())
 }
 
 func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
@@ -43,3 +47,9 @@ func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
 
 	return nextOffset
 }
+
+// searchResults, _ := client.Search(map[string]string {"q": "star wars"});
+// fmt.Println(searchResults.ToJSON())
+
+// typeaheadResults, _ := client.Typeahead(map[string]string {"q": "star wars"});
+// fmt.Println(typeaheadResults.ToJSON())
