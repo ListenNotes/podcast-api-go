@@ -2,6 +2,7 @@ package listennotes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -174,4 +175,42 @@ func TestPost(t *testing.T) {
 	if !called {
 		t.Errorf("Did not call expected httptest url")
 	}
+}
+
+func TestResponseJSON(t *testing.T) {
+	resp := Response{
+		Data: map[string]interface{}{
+			"a": "b",
+			"c": []string{"1", "2"},
+		},
+	}
+	j := resp.ToJSON()
+	if j != `{"a":"b","c":["1","2"]}` {
+		t.Errorf("ToJSON had unexpected result: '%s'", j)
+	}
+}
+func TestNilResponseJSON(t *testing.T) {
+	var resp *Response
+	j := resp.ToJSON()
+	if j != "" {
+		t.Errorf("ToJSON had unexpected respons: '%s'", j)
+	}
+}
+
+func TestResponseJSONParseFailure(t *testing.T) {
+	resp := Response{
+		Data: map[string]interface{}{
+			"a": testNoParse{},
+		},
+	}
+	j := resp.ToJSON()
+	if j != "" {
+		t.Errorf("ToJSON error should have returned blank string")
+	}
+}
+
+type testNoParse struct{}
+
+func (testNoParse) MarshalJSON() ([]byte, error) {
+	return nil, fmt.Errorf("no-json-marshal")
 }

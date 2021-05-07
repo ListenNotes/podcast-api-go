@@ -2,18 +2,29 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	listennotes "github.com/ListenNotes/podcast-api-go"
 )
 
 func main() {
+	apiKey := os.Getenv("LISTEN_API_KEY")
 
-	client := listennotes.NewClient("")
+	client := listennotes.NewClient(apiKey)
 
-	// the test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
+	// The test data will return the same page each time, but this is an example of getting the next_offset out fo the resulting payload
 	nextOffset := fetchAndOutputPage(client, 0)
 	fetchAndOutputPage(client, nextOffset)
+
+	// You can get the output json easily as well:
+	fmt.Printf("\nRegions:\n")
+	regions, err := client.FetchPodcastRegions(nil)
+	if err != nil {
+		fmt.Printf("Failed reading regions: %s\n", err)
+	} else {
+		fmt.Println(regions.ToJSON())
+	}
 }
 
 func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
@@ -43,3 +54,9 @@ func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
 
 	return nextOffset
 }
+
+// searchResults, err := client.Search(map[string]string {"q": "star wars"});
+// fmt.Println(searchResults.ToJSON())
+
+// typeaheadResults, err := client.Typeahead(map[string]string {"q": "star wars"});
+// fmt.Println(typeaheadResults.ToJSON())
