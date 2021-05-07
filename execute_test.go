@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -12,7 +13,7 @@ func TestStandardClientExecuteNewReqFailure(t *testing.T) {
 	client := &standardHTTPClient{
 		baseURL: "http://localhost:bogus",
 	}
-	_, err := client.get(map[string]string{}, "path")
+	_, err := client.get("path", map[string]string{})
 	if err == nil || !strings.Contains(err.Error(), "invalid port ") {
 		t.Errorf("Expected url parse failure but got: %v", err)
 	}
@@ -52,7 +53,7 @@ func TestMappedErrors(t *testing.T) {
 
 	for _, e := range errs {
 		expectedCode = e.code
-		_, err := client.get(map[string]string{}, "path")
+		_, err := client.get("path", map[string]string{})
 		if (e.err == nil && err != nil) || (e.err != nil && !errors.Is(err, e.err)) {
 			t.Errorf("%d reponse code did not result in correct error: %s", e.code, err)
 		}
@@ -69,7 +70,7 @@ func TestDecodeError(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	_, err := client.get(map[string]string{}, "path")
+	_, err := client.get("path", map[string]string{})
 	if err == nil || !strings.Contains(err.Error(), "failed parsing the response") {
 		t.Errorf("Expected json parse failure but got: %v", err)
 	}
@@ -90,10 +91,10 @@ func TestGetQueryArguments(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	client.get(map[string]string{
+	client.get("path", map[string]string{
 		"a": "b",
 		"c": "d",
-	}, "path")
+	})
 
 	if !called {
 		t.Errorf("Did not call expected httptest url")
@@ -110,10 +111,10 @@ func TestParsedResponse(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	resp, err := client.get(map[string]string{
+	resp, err := client.get("path", map[string]string{
 		"a": "b",
 		"c": "d",
-	}, "path")
+	})
 	if err != nil {
 		t.Errorf("Expected no error but got: %v", err)
 	}
@@ -144,3 +145,33 @@ const searchPayload = `{
 	],
 	"next_offset": 10
 }`
+
+func TestPost(t *testing.T) {
+	called := false
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+
+		if err := r.ParseForm(); err != nil {
+			t.Errorf("Test form failed to parse: %s", err)
+		}
+		if formValue := r.Form.Get("k"); formValue != "v" {
+			t.Errorf("Form did not have proper k value: %s", formValue)
+		}
+
+		w.Write([]byte(`{}`))
+	}))
+	defer ts.Close()
+
+	client := &standardHTTPClient{
+		httpClient: http.DefaultClient,
+		baseURL:    ts.URL,
+	}
+
+	client.post("path", map[string]string{}, url.Values{
+		"k": []string{"v"},
+	})
+
+	if !called {
+		t.Errorf("Did not call expected httptest url")
+	}
+}
