@@ -81,32 +81,36 @@ value:
 package main
 
 import (
-    "fmt"
-    "os"
-    listennotes "github.com/ListenNotes/podcast-api-go"
+  "fmt"
+  "os"
+  listennotes "github.com/ListenNotes/podcast-api-go"
 )
 
 func main() {
-    apiKey := os.Getenv("LISTEN_API_KEY")
-    client := listennotes.NewClient(apiKey)
+  apiKey := os.Getenv("LISTEN_API_KEY")
+  client := listennotes.NewClient(apiKey)
     
-    // All types of errors `err` can be found at 
-    //	https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go
-    resp, err := client.Search(map[string]string{
-	    "q":    "star wars",
-	    "type": "episode",
-    })
+  // All types of errors `err` can be found at 
+  //	https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go
+  resp, err := client.Search(map[string]string{
+	  "q":    "star wars",
+	  "type": "episode",
+  })
 
-    if err == nil {
-        // Print out the entire response data as a string
-        fmt.Println(resp.ToJSON())
+  if err == nil {
+    // Print out the entire response data as a string
+    fmt.Println(resp.ToJSON())
+  
+    // resp.Data is a map[string]interface{}. The schema is defined at
+    //    https://www.listennotes.com/api/docs/
     
-        // resp.Data is a map[string]interface{}. The schema is defined at
-        //    https://www.listennotes.com/api/docs/
-    
-        // resp.Stats is defined at
-        //    https://github.com/ListenNotes/podcast-api-go/blob/main/stats.go#L10
-    }
+    // resp.Stats is defined at
+    //    https://github.com/ListenNotes/podcast-api-go/blob/main/stats.go#L10
+  } else if err == listennotes.ErrUnauthorized {
+    // Error handling...
+  } else if err == listennotes.ErrBadRequest {
+    // Error handling...
+  }
 }
 ```
 
