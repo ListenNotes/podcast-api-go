@@ -89,6 +89,9 @@ import (
 func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
+    
+    // All types of errors `err` can be found at 
+    //	https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go
     resp, err := client.Search(map[string]string{
 	    "q":    "star wars",
 	    "type": "episode",
@@ -110,12 +113,11 @@ func main() {
 If `apiKey` is nil, then we'll connect to a [mock server](https://www.listennotes.com/api/tutorials/#faq0) that returns fake data for testing purposes.
 
 
-### Handling exceptions
+### Handling errors
 
-Unsuccessful requests raise exceptions. The class of the exception will reflect
-the sort of error that occurred.
+Unsuccessful requests return errors.
 
-| Exception Class  | Description |
+| Error  | Description |
 | ------------- | ------------- |
 |  ErrUnauthorized | wrong api key or your account is suspended  |
 | ErrBadRequest  | something wrong on your end (client side errors), e.g., missing required parameters  |
@@ -123,7 +125,7 @@ the sort of error that occurred.
 | ErrNotFound  | endpoint not exist, or podcast / episode not exist  |
 | ErrInternalServerError  | something wrong on our end (unexpected server errors)  |
 
-All exception classes can be found in [this file](https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go).
+All errors can be found in [this file](https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go).
 
 
 
