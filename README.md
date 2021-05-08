@@ -17,7 +17,7 @@ If you have any questions, please contact [hello@listennotes.com](hello@listenno
   - [Installation](#installation)
     - [Requirements](#requirements)
   - [Usage](#usage)
-    - [Handling exceptions](#handling-exceptions)
+    - [Handling errors](#handling-errors)
   - [API Reference](#api-reference)
     - [Full-text search](#full-text-search)
     - [Typeahead search](#typeahead-search)
@@ -126,7 +126,6 @@ Unsuccessful requests return errors.
 | ErrInternalServerError  | something wrong on our end (unexpected server errors)  |
 
 All errors can be found in [this file](https://github.com/ListenNotes/podcast-api-go/blob/main/errors.go).
-
 
 
 
@@ -1812,8 +1811,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchEpisodeByID(map[string]string{
-            "id": "6b6d65930c5a4f71b254465871fed370",
-        })
+        "id": "6b6d65930c5a4f71b254465871fed370",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -2418,8 +2417,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchPodcastGenres(map[string]string{
-            "top_level_only": "1",
-        })
+        "top_level_only": "1",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -4191,9 +4190,9 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchRecommendationsForPodcast(map[string]string{
-            "id":           "25212ac3c53240a880dd5032e547047b",
-            "safe_mode":    "1",
-        })
+        "id":           "25212ac3c53240a880dd5032e547047b",
+        "safe_mode":    "1",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -4883,9 +4882,9 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchRecommendationsForEpisode(map[string]string{
-            "id":           "914a9deafa5340eeaa2859c77f275799",
-            "safe_mode":    "1",
-        })
+        "id":           "914a9deafa5340eeaa2859c77f275799",
+        "safe_mode":    "1",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -5283,8 +5282,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.BatchFetchEpisodes(map[string]string{
-            "ids": "c577d55b2b2b483c969fae3ceb58e362,0f34a9099579490993eec9e8c8cebb82",
-        })
+        "ids": "c577d55b2b2b483c969fae3ceb58e362,0f34a9099579490993eec9e8c8cebb82",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -5529,8 +5528,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.BatchFetchPodcasts(map[string]string{
-            "ids": "3302bc71139541baa46ecb27dbf6071a,68faf62be97149c280ebcc25178aa731,9cf19c590ff0484d97b18b329fed0c6a",
-        })
+        "ids": "3302bc71139541baa46ecb27dbf6071a,68faf62be97149c280ebcc25178aa731,9cf19c590ff0484d97b18b329fed0c6a",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -6927,8 +6926,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchCuratedPodcastsListByID(map[string]string{
-            "id": "SDFKduyJ47r",
-        })
+        "id": "SDFKduyJ47r",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -8044,7 +8043,7 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchCuratedPodcastsLists(map[string]string{
-        "page":         "2",
+        "page": "2",
     })
 
     if err == nil {
@@ -9490,8 +9489,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.SubmitPodcast(map[string]string{
-            "rss":  "https://feeds.megaphone.fm/committed",
-        })
+        "rss":  "https://feeds.megaphone.fm/committed",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -9627,8 +9626,8 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.DeletePodcast(map[string]string{
-            "id": "4d3fe717742d4963a85562e9f84d8c79",
-        })
+        "id": "4d3fe717742d4963a85562e9f84d8c79",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -9715,9 +9714,9 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchPlaylistByID(map[string]string{
-            "id":   "m1pe7z60bsw",
-            "type": "podcast_list",
-        })
+        "id":   "m1pe7z60bsw",
+        "type": "podcast_list",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
@@ -10927,9 +10926,9 @@ func main() {
     apiKey := os.Getenv("LISTEN_API_KEY")
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchMyPlaylists(map[string]string{
-            "page": "1",
-            "sort": "name_a_to_z",
-        })
+        "page": "1",
+        "sort": "name_a_to_z",
+    })
 
     if err == nil {
         // Print out the entire response data as a string
