@@ -110,7 +110,7 @@ func main() {
 }
 ```
 
-If `apiKey` is nil, then we'll connect to a [mock server](https://www.listennotes.com/api/tutorials/#faq0) that returns fake data for testing purposes.
+If `apiKey` is an empty string "", then we'll connect to a [mock server](https://www.listennotes.com/api/tutorials/#faq0) that returns fake data for testing purposes.
 
 
 ### Handling errors
