@@ -57,7 +57,7 @@ import (
 ```
 
 Run any of the normal `go` commands (`build`/`install`/`test`). The Go
-toolchain will resolve and fetch the podcast-api-go module automatically.
+toolchain will resolve and fetch the [podcast-api-go](https://pkg.go.dev/github.com/ListenNotes/podcast-api-go) module automatically.
 
 Alternatively, you can also explicitly `go get` the package into a project:
 
