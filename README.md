@@ -2629,7 +2629,7 @@ func main() {
     client := listennotes.NewClient(apiKey)
     resp, err := client.FetchBestPodcasts(map[string]string{
         "page":         "2",
-        "region_id":    "93",    
+        "genre_id":     "93",    
     })
 
     if err == nil {
