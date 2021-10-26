@@ -1,6 +1,6 @@
 # Podcast API Go Library
 
-[![Go CI](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml/badge.svg)](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml)
+[![Go CI](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml/badge.svg)](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/ListenNotes/podcast-api-go.svg)](https://pkg.go.dev/github.com/ListenNotes/podcast-api-go)
 
 The Podcast API Go library provides convenient access to the [Listen Notes Podcast API](https://www.listennotes.com/api/) from
 applications written in the Go language.
