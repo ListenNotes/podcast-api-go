@@ -13,6 +13,9 @@ import (
 type HTTPClient interface {
 	Search(args map[string]string) (*Response, error)
 	Typeahead(args map[string]string) (*Response, error)
+	SpellCheck(args map[string]string) (*Response, error)
+	FetchRelatedSearches(args map[string]string) (*Response, error)
+	FetchTrendingSearches(args map[string]string) (*Response, error)
 	FetchBestPodcasts(args map[string]string) (*Response, error)
 	FetchPodcastByID(id string, args map[string]string) (*Response, error)
 	FetchEpisodeByID(id string, args map[string]string) (*Response, error)
@@ -68,6 +71,18 @@ func (c *standardHTTPClient) Search(args map[string]string) (*Response, error) {
 
 func (c *standardHTTPClient) Typeahead(args map[string]string) (*Response, error) {
 	return c.get("typeahead", args)
+}
+
+func (c *standardHTTPClient) SpellCheck(args map[string]string) (*Response, error) {
+	return c.get("spellcheck", args)
+}
+
+func (c *standardHTTPClient) FetchRelatedSearches(args map[string]string) (*Response, error) {
+	return c.get("related_searches", args)
+}
+
+func (c *standardHTTPClient) FetchTrendingSearches(args map[string]string) (*Response, error) {
+	return c.get("trending_searches", args)
 }
 
 func (c *standardHTTPClient) FetchBestPodcasts(args map[string]string) (*Response, error) {

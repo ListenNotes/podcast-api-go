@@ -52,6 +52,43 @@ func TestSearchIntegration(t *testing.T) {
 		},
 		{
 			Method: "GET",
+			Path:   "spellcheck",
+			Args: map[string]string{
+				"q": "dummy",
+			},
+			ExecuteFunc: client.SpellCheck,
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectCollection(resp, "tokens", 2)
+				return nil
+			},
+		},
+		{
+			Method: "GET",
+			Path:   "related_searches",
+			Args: map[string]string{
+				"q": "dummy",
+			},
+			ExecuteFunc: client.FetchRelatedSearches,
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectCollection(resp, "terms", 8)
+				return nil
+			},
+		},
+		{
+			Method:      "GET",
+			Path:        "trending_searches",
+			Args:        map[string]string{},
+			ExecuteFunc: client.FetchTrendingSearches,
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectCollection(resp, "terms", 10)
+				return nil
+			},
+		},
+		{
+			Method: "GET",
 			Path:   "best_podcasts",
 			Args: map[string]string{
 				"genre_id": "93",

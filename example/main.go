@@ -25,6 +25,15 @@ func main() {
 	} else {
 		fmt.Println(regions.ToJSON())
 	}
+
+	// spellCheckResults, err := client.SpellCheck(map[string]string{"q": "bill gate"})
+	// fmt.Println(spellCheckResults.ToJSON())
+
+	// relatedSearchesResults, err := client.FetchRelatedSearches(map[string]string{"q": "bill gates"})
+	// fmt.Println(relatedSearchesResults.ToJSON())
+
+	// trendingSearchesResults, err := client.FetchTrendingSearches(map[string]string{})
+	// fmt.Println(trendingSearchesResults.ToJSON())
 }
 
 func fetchAndOutputPage(client listennotes.HTTPClient, offset int) int {
