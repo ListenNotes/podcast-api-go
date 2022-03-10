@@ -128,7 +128,7 @@ Unsuccessful requests return errors.
 | ------------- | ------------- |
 |  ErrUnauthorized | wrong api key or your account is suspended  |
 | ErrBadRequest  | something wrong on your end (client side errors), e.g., missing required parameters  |
-| ErrTooManyRequests  | you are using FREE plan and you exceed the quota limit  |
+| ErrTooManyRequests  | for FREE plan, exceeding the quota limit; or for all plans, sending too many requests too fast and exceeding the rate limit  |
 | ErrNotFound  | endpoint not exist, or podcast / episode not exist  |
 | ErrInternalServerError  | something wrong on our end (unexpected server errors)  |
 
