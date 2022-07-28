@@ -30,7 +30,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Search,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "took", 0.234)
+				expectData(resp, "took", 0.13)
 				expectCollection(resp, "results", 10)
 				return nil
 			},
@@ -44,7 +44,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Typeahead,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectCollection(resp, "terms", 2)
+				expectCollection(resp, "terms", 1)
 				expectCollection(resp, "genres", 1)
 				expectCollection(resp, "podcasts", 5)
 				return nil
@@ -155,7 +155,7 @@ func TestSearchIntegration(t *testing.T) {
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectCollection(resp, "podcasts", 9)
+				expectCollection(resp, "podcasts", 11)
 				return nil
 			},
 		},
@@ -184,7 +184,7 @@ func TestSearchIntegration(t *testing.T) {
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
 				expectNoError(respErr)
-				expectCollection(resp, "genres", 8)
+				expectCollection(resp, "genres", 21)
 				return nil
 			},
 		},
@@ -195,7 +195,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.FetchPodcastRegions,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectMap(resp, "regions", 67)
+				expectMap(resp, "regions", 150)
 				return nil
 			},
 		},
@@ -206,7 +206,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.FetchPodcastLanguages,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectCollection(resp, "languages", 20)
+				expectCollection(resp, "languages", 74)
 				return nil
 			},
 		},
@@ -217,7 +217,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.JustListen,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "title", "Miami Heat: Howard Beck on James Harden (Nets, 76ers too)")
+				expectData(resp, "title", "Lower Hutt SDA Church-23-07-2022")
 				return nil
 			},
 		},
@@ -308,7 +308,7 @@ func TestSearchIntegration(t *testing.T) {
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "status", "found")
+				expectData(resp, "status", "in review")
 				return nil
 			},
 		},
@@ -327,6 +327,20 @@ func TestSearchIntegration(t *testing.T) {
 				return nil
 			},
 		},
+		{
+			Method: "GET",
+			Path:   "podcasts/25212ac3c53240a880dd5032e547047b/audience",
+			Args: map[string]string{
+			},
+			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
+				return client.FetchAudienceForPodcast("25212ac3c53240a880dd5032e547047b", args)
+			},
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectCollection(resp, "by_regions", 58)
+				return nil
+			},
+		},		
 	}
 
 	for idx, exp := range expectations {
