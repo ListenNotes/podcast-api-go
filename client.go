@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 // HTTPClient is the client interface
@@ -19,8 +18,8 @@ type HTTPClient interface {
 	FetchBestPodcasts(args map[string]string) (*Response, error)
 	FetchPodcastByID(id string, args map[string]string) (*Response, error)
 	FetchEpisodeByID(id string, args map[string]string) (*Response, error)
-	BatchFetchEpisodes(ids []string, args map[string]string) (*Response, error)
-	BatchFetchPodcasts(ids []string, args map[string]string) (*Response, error)
+	BatchFetchEpisodes(args map[string]string) (*Response, error)
+	BatchFetchPodcasts(args map[string]string) (*Response, error)
 	FetchCuratedPodcastsListByID(id string, args map[string]string) (*Response, error)
 	FetchPodcastGenres(args map[string]string) (*Response, error)
 	FetchPodcastRegions(args map[string]string) (*Response, error)
@@ -98,16 +97,20 @@ func (c *standardHTTPClient) FetchEpisodeByID(id string, args map[string]string)
 	return c.get(fmt.Sprintf("episodes/%s", id), args)
 }
 
-func (c *standardHTTPClient) BatchFetchEpisodes(ids []string, args map[string]string) (*Response, error) {
-	return c.post("episodes", args, url.Values{
-		"ids": []string{strings.Join(ids, ",")},
-	})
+func (c *standardHTTPClient) BatchFetchEpisodes(args map[string]string) (*Response, error) {
+	values := url.Values{}
+	for k, v := range args {
+		values.Set(k, v)
+	}
+	return c.post("episodes", args, values)		
 }
 
-func (c *standardHTTPClient) BatchFetchPodcasts(ids []string, args map[string]string) (*Response, error) {
-	return c.post("podcasts", args, url.Values{
-		"ids": []string{strings.Join(ids, ",")},
-	})
+func (c *standardHTTPClient) BatchFetchPodcasts(args map[string]string) (*Response, error) {
+	values := url.Values{}
+	for k, v := range args {
+		values.Set(k, v)
+	}
+	return c.post("podcasts", args, values)	
 }
 
 func (c *standardHTTPClient) FetchCuratedPodcastsListByID(id string, args map[string]string) (*Response, error) {

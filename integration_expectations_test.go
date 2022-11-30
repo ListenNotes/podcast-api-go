@@ -134,9 +134,11 @@ func TestSearchIntegration(t *testing.T) {
 		{
 			Method: "POST",
 			Path:   "episodes",
-			Args:   map[string]string{},
+			Args: map[string]string{
+				"ids":   "123,456",
+			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.BatchFetchEpisodes([]string{"123", "456"}, args)
+				return client.BatchFetchEpisodes(args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
@@ -148,10 +150,11 @@ func TestSearchIntegration(t *testing.T) {
 			Method: "POST",
 			Path:   "podcasts",
 			Args: map[string]string{
+				"id": "123,456",
 				"show_latest_episodes": "1",
 			},
 			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
-				return client.BatchFetchPodcasts([]string{"123", "456"}, args)
+				return client.BatchFetchPodcasts(args)
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
