@@ -30,7 +30,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Search,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "took", 0.13)
+				expectData(resp, "took", 0.616)
 				expectCollection(resp, "results", 10)
 				return nil
 			},
@@ -198,7 +198,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.FetchPodcastRegions,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectMap(resp, "regions", 150)
+				expectMap(resp, "regions", 96)
 				return nil
 			},
 		},
@@ -220,7 +220,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.JustListen,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "title", "Lower Hutt SDA Church-23-07-2022")
+				expectData(resp, "title", "CTS 314: Is ChatGPT useful to a Wi-Fi Engineer")
 				return nil
 			},
 		},
@@ -340,7 +340,22 @@ func TestSearchIntegration(t *testing.T) {
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectCollection(resp, "by_regions", 58)
+				expectCollection(resp, "by_regions", 57)
+				return nil
+			},
+		},
+		{
+			Method: "GET",
+			Path:   "podcasts/domains/nytimes.com",
+			Args: map[string]string{
+				"page": "1",
+			},
+			ExecuteFunc: func(args map[string]string) (*listennotes.Response, error) {
+				return client.FetchPodcastsByDomain("nytimes.com", args)
+			},
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectCollection(resp, "podcasts", 10)
 				return nil
 			},
 		},		

@@ -32,7 +32,8 @@ type HTTPClient interface {
 	FetchPlaylistByID(id string, args map[string]string) (*Response, error)
 	SubmitPodcast(args map[string]string) (*Response, error)
 	DeletePodcast(id string, args map[string]string) (*Response, error)
-	FetchAudienceForPodcast(id string, args map[string]string) (*Response, error)	
+	FetchAudienceForPodcast(id string, args map[string]string) (*Response, error)
+	FetchPodcastsByDomain(domainName string, args map[string]string) (*Response, error)	
 }
 
 type standardHTTPClient struct {
@@ -167,4 +168,8 @@ func (c *standardHTTPClient) DeletePodcast(id string, args map[string]string) (*
 
 func (c *standardHTTPClient) FetchAudienceForPodcast(id string, args map[string]string) (*Response, error) {
 	return c.get(fmt.Sprintf("podcasts/%s/audience", id), args)
+}
+
+func (c *standardHTTPClient) FetchPodcastsByDomain(domainName string, args map[string]string) (*Response, error) {
+	return c.get(fmt.Sprintf("podcasts/domains/%s", domainName), args)
 }
