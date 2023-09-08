@@ -30,11 +30,25 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Search,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "took", 0.616)
+				expectData(resp, "took", 0.133)
 				expectCollection(resp, "results", 10)
 				return nil
 			},
 		},
+		{
+			Method: "GET",
+			Path:   "search",
+			Args: map[string]string{
+				"q": "term",
+			},
+			ExecuteFunc: client.Search,
+			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
+				expectNoError(respErr)
+				expectData(resp, "took", 0.133)
+				expectCollection(resp, "results", 10)
+				return nil
+			},
+		},		
 		{
 			Method: "GET",
 			Path:   "typeahead",
@@ -198,7 +212,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.FetchPodcastRegions,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectMap(resp, "regions", 96)
+				expectMap(resp, "regions", 97)
 				return nil
 			},
 		},
@@ -220,7 +234,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.JustListen,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "title", "CTS 314: Is ChatGPT useful to a Wi-Fi Engineer")
+				expectData(resp, "title", "69 Gifts of the Wyrd: Irisanya Moon - The Norns")
 				return nil
 			},
 		},
@@ -311,7 +325,7 @@ func TestSearchIntegration(t *testing.T) {
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "status", "in review")
+				expectData(resp, "status", "found")
 				return nil
 			},
 		},
@@ -340,7 +354,7 @@ func TestSearchIntegration(t *testing.T) {
 			},
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectCollection(resp, "by_regions", 57)
+				expectCollection(resp, "by_regions", 58)
 				return nil
 			},
 		},

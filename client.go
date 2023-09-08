@@ -70,6 +70,10 @@ func (c *standardHTTPClient) Search(args map[string]string) (*Response, error) {
 	return c.get("search", args)
 }
 
+func (c *standardHTTPClient) SearchEpisodeTitles(args map[string]string) (*Response, error) {
+	return c.get("search_episode_titles", args)
+}
+
 func (c *standardHTTPClient) Typeahead(args map[string]string) (*Response, error) {
 	return c.get("typeahead", args)
 }
