@@ -12,6 +12,7 @@ import (
 type HTTPClient interface {
 	Search(args map[string]string) (*Response, error)
 	Typeahead(args map[string]string) (*Response, error)
+	SearchEpisodeTitles(args map[string]string) (*Response, error)	
 	SpellCheck(args map[string]string) (*Response, error)
 	FetchRelatedSearches(args map[string]string) (*Response, error)
 	FetchTrendingSearches(args map[string]string) (*Response, error)
