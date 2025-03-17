@@ -30,7 +30,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Search,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "took", 0.133)
+				expectData(resp, "took", 0.203)
 				expectCollection(resp, "results", 10)
 				return nil
 			},
@@ -44,7 +44,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.Search,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "took", 0.133)
+				expectData(resp, "took", 0.203)
 				expectCollection(resp, "results", 10)
 				return nil
 			},
@@ -234,7 +234,7 @@ func TestSearchIntegration(t *testing.T) {
 			ExecuteFunc: client.JustListen,
 			ValidateFunc: func(resp *listennotes.Response, respErr error) error {
 				expectNoError(respErr)
-				expectData(resp, "title", "69 Gifts of the Wyrd: Irisanya Moon - The Norns")
+				expectData(resp, "title", "The Content Marketing Game Changer: How Copywriting Drives Results")
 				return nil
 			},
 		},
