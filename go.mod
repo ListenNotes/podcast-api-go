@@ -1,3 +1,4 @@
+// Deprecated: Use github.com/ListenNotes/podcast-api-go/v3 instead.
 module github.com/ListenNotes/podcast-api-go
 
 go 1.16

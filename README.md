@@ -1,6 +1,25 @@
 # Podcast API Go Library
 
-[![Go CI](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml/badge.svg)](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/ListenNotes/podcast-api-go.svg)](https://pkg.go.dev/github.com/ListenNotes/podcast-api-go)
+> **Deprecated: this page documents the legacy v1 SDK.** Use
+> [`github.com/ListenNotes/podcast-api-go/v3`](https://pkg.go.dev/github.com/ListenNotes/podcast-api-go/v3)
+> for new development, including playlist management. Existing v1 imports continue
+> to work; upgrading to v3 requires updating your imports and using Go 1.26 or newer.
+
+Install the current major version:
+
+```sh
+go get github.com/ListenNotes/podcast-api-go/v3@v3.0.0
+```
+
+```go
+import listennotes "github.com/ListenNotes/podcast-api-go/v3"
+```
+
+Read the [v3 migration guide](https://github.com/ListenNotes/podcast-api-go/blob/v3.0.0/README.md#upgrading-from-1x)
+for interface and error-handling changes. The installation instructions and API
+reference below are retained for existing v1 users.
+
+[![Go CI](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml/badge.svg)](https://github.com/ListenNotes/podcast-api-go/actions/workflows/go.yml) [![Go Reference](https://pkg.go.dev/badge/github.com/ListenNotes/podcast-api-go/v3.svg)](https://pkg.go.dev/github.com/ListenNotes/podcast-api-go/v3)
 
 The Podcast API Go library provides convenient access to the [Listen Notes Podcast API](https://www.listennotes.com/api/) from
 applications written in the Go language.

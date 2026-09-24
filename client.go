@@ -1,5 +1,8 @@
 // Package listennotes provides an API client to access the listennotes API found here: https://listen-api.listennotes.com/.
 // API documentation can be found at https://www.listennotes.com/api/docs/.
+//
+// Deprecated: Use github.com/ListenNotes/podcast-api-go/v3 instead.
+// See https://pkg.go.dev/github.com/ListenNotes/podcast-api-go/v3 for current documentation.
 package listennotes
 
 import (
