@@ -1,5 +1,8 @@
 package listennotes
 
+// Version is the SDK version sent in the User-Agent header.
+const Version = "3.0.0"
+
 // Base urls for access the available api endpoints
 const (
 	BaseURLProduction = "https://listen-api.listennotes.com/api/v2"
@@ -11,7 +14,7 @@ const (
 	RequestHeaderKeyAPI = "X-ListenAPI-Key"
 )
 
-// Reponse header keys
+// Response header keys
 const (
 	ResponseHeaderKeyFreeQuota       = "X-ListenAPI-FreeQuota"
 	ResponseHeaderKeyUsage           = "X-ListenAPI-Usage"

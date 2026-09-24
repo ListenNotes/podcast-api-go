@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 )
@@ -14,7 +13,7 @@ func TestStandardClientExecuteNewReqFailure(t *testing.T) {
 	client := &standardHTTPClient{
 		baseURL: "http://localhost:bogus",
 	}
-	_, err := client.get("path", map[string]string{})
+	_, err := client.Search(map[string]string{})
 	if err == nil || !strings.Contains(err.Error(), "invalid port ") {
 		t.Errorf("Expected url parse failure but got: %v", err)
 	}
@@ -54,7 +53,7 @@ func TestMappedErrors(t *testing.T) {
 
 	for _, e := range errs {
 		expectedCode = e.code
-		_, err := client.get("path", map[string]string{})
+		_, err := client.Search(map[string]string{})
 		if (e.err == nil && err != nil) || (e.err != nil && !errors.Is(err, e.err)) {
 			t.Errorf("%d reponse code did not result in correct error: %s", e.code, err)
 		}
@@ -71,7 +70,7 @@ func TestDecodeError(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	_, err := client.get("path", map[string]string{})
+	_, err := client.Search(map[string]string{})
 	if err == nil || !strings.Contains(err.Error(), "failed parsing the response") {
 		t.Errorf("Expected json parse failure but got: %v", err)
 	}
@@ -92,7 +91,7 @@ func TestGetQueryArguments(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	client.get("path", map[string]string{
+	client.Search(map[string]string{
 		"a": "b",
 		"c": "d",
 	})
@@ -112,7 +111,7 @@ func TestParsedResponse(t *testing.T) {
 		httpClient: http.DefaultClient,
 		baseURL:    ts.URL,
 	}
-	resp, err := client.get("path", map[string]string{
+	resp, err := client.Search(map[string]string{
 		"a": "b",
 		"c": "d",
 	})
@@ -168,9 +167,7 @@ func TestPost(t *testing.T) {
 		baseURL:    ts.URL,
 	}
 
-	client.post("path", map[string]string{}, url.Values{
-		"k": []string{"v"},
-	})
+	client.CreatePlaylist(map[string]string{"k": "v"})
 
 	if !called {
 		t.Errorf("Did not call expected httptest url")

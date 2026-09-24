@@ -1,26 +1,15 @@
-.PHONY: default
-default: clean lint vet test
+.PHONY: test unit-test integration lint vet run-example
+test unit-test:
+	go test -race -count=1 ./...
 
-.PHONY: clean
-clean:
-	find . -name \*.coverprofile -delete
+integration:
+	go test -tags=integration -run '^TestMockIntegration' -count=1 -timeout=3m ./...
 
-.PHONY: lint
 lint:
-	golint -set_exit_status ./...
+	test -z "$$(gofmt -l .)"
 
-.PHONY: vet
 vet:
 	go vet ./...
 
-.PHONY: test
-test:
-	go test -cover `go list ./... | grep -v example`
-
-.PHONY: unit-test
-unit-test:
-	go test -cover `go list ./... | grep -v example` -short
-
-.PHONY: run-example
 run-example:
-	go run example/main.go
+	go run ./example
