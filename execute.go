@@ -4,96 +4,97 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 )
 
-// Response is the standard response for all client functions
+// Response contains parsed data, usage statistics, and the original HTTP details.
+// A non-2xx response is returned alongside its APIError; Data is not parsed then.
 type Response struct {
-	Stats ResponseStatistics
-	Data  map[string]interface{}
+	Stats      ResponseStatistics
+	Data       map[string]interface{}
+	StatusCode int
+	Headers    http.Header
+	Body       string
 }
 
-// ToJSON will encode the response data as JSON.
-// Note: JSON marshal errors are swallowed here on purpose.  This is for ease of use.
-// Considering this data marshalled from JSON, the risk here is low.  On failure, "" will be returned.
+// ToJSON encodes Data, returning an empty string for nil receivers or marshal errors.
 func (r *Response) ToJSON() string {
 	if r == nil {
 		return ""
 	}
-	jsonResult, err := json.Marshal(r.Data)
+	result, err := json.Marshal(r.Data)
 	if err != nil {
-		log.Printf("failed to marshal response data to json: %s", err)
 		return ""
 	}
-	return string(jsonResult)
+	return string(result)
 }
 
-func (c *standardHTTPClient) get(path string, args map[string]string) (*Response, error) {
-	return c.exec("GET", path, args, url.Values{})
-}
+type pathParam struct{ name, value string }
 
-func (c *standardHTTPClient) post(path string, args map[string]string, formFields url.Values) (*Response, error) {
-	return c.exec("POST", path, args, formFields)
-}
-
-func (c *standardHTTPClient) delete(path string, args map[string]string) (*Response, error) {
-	return c.exec("DELETE", path, args, url.Values{})
-}
-
-func (c *standardHTTPClient) exec(
-	method string,
-	path string,
-	args map[string]string,
-	formFields url.Values,
-) (*Response, error) {
-	url := fmt.Sprintf("%s/%s", c.baseURL, path)
-
-	var body io.Reader
-	if len(formFields) > 0 {
-		body = strings.NewReader(formFields.Encode())
-	}
-
-	req, err := http.NewRequest(method, url, body)
+func (c *standardHTTPClient) requestAPI(method, path string, pathParams []pathParam, queryNames []string, args map[string]string) (*Response, error) {
+	base, err := url.Parse(c.baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request to %s: %w", path, err)
+		return nil, fmt.Errorf("invalid API base URL: %w", err)
 	}
-	req.Header.Add(RequestHeaderKeyAPI, c.apiKey)
-
-	if len(formFields) > 0 {
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	if (base.Scheme != "http" && base.Scheme != "https") || base.Host == "" || base.User != nil || base.RawQuery != "" || base.ForceQuery || base.Fragment != "" {
+		return nil, fmt.Errorf("API base URL must be HTTP(S) without credentials, query, or fragment")
 	}
-
-	q := req.URL.Query()
-	for k, v := range args {
-		q.Add(k, v)
+	pathNames := make([]string, 0, len(pathParams))
+	for _, param := range pathParams {
+		if param.value == "" || param.value == "." || param.value == ".." {
+			return nil, fmt.Errorf("invalid path parameter %s", param.name)
+		}
+		path = strings.ReplaceAll(path, "{"+param.name+"}", url.PathEscape(param.value))
+		pathNames = append(pathNames, param.name)
 	}
-	req.URL.RawQuery = q.Encode()
-
+	query, form := url.Values{}, url.Values{}
+	for name, value := range args {
+		if slices.Contains(pathNames, name) {
+			continue
+		}
+		if (method == http.MethodPost || method == http.MethodPut) && !slices.Contains(queryNames, name) {
+			form.Set(name, value)
+		} else {
+			query.Set(name, value)
+		}
+	}
+	var body io.Reader
+	if method == http.MethodPost || method == http.MethodPut {
+		body = strings.NewReader(form.Encode())
+	}
+	req, err := http.NewRequest(method, strings.TrimRight(base.String(), "/")+path, body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create API request: %w", err)
+	}
+	req.URL.RawQuery = query.Encode()
+	req.Header.Set("User-Agent", "podcast-api-go "+Version)
+	req.Header.Set("Accept", "application/json")
+	if c.apiKey != "" {
+		req.Header.Set(RequestHeaderKeyAPI, c.apiKey)
+	}
+	if body != nil {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to executing request to %s: %w", path, err)
+		return nil, fmt.Errorf("API request failed: %w", err)
 	}
 	defer resp.Body.Close()
-
-	// map any generic status code errors
-	if mappedError, ok := errMap[resp.StatusCode]; ok && mappedError != nil {
-		return nil, mappedError
+	raw, err := io.ReadAll(resp.Body)
+	result := &Response{Stats: parseStats(resp), StatusCode: resp.StatusCode, Headers: resp.Header.Clone(), Body: string(raw)}
+	if err != nil {
+		return result, fmt.Errorf("failed reading API response: %w", err)
 	}
-
-	// generic body parsing
-	var genericJSON map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&genericJSON); err != nil {
-		return nil, fmt.Errorf("failed parsing the response from %s: %w", path, err)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return result, &APIError{StatusCode: resp.StatusCode, Headers: resp.Header.Clone(), Body: string(raw)}
 	}
-
-	// gather the header statistics
-	stats := parseStats(resp)
-
-	return &Response{
-		Stats: stats,
-		Data:  genericJSON,
-	}, nil
+	if len(strings.TrimSpace(result.Body)) == 0 {
+		result.Data = map[string]interface{}{}
+	} else if err := json.Unmarshal(raw, &result.Data); err != nil {
+		return result, fmt.Errorf("failed parsing the response: %w", err)
+	}
+	return result, nil
 }

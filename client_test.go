@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	listennotes "github.com/ListenNotes/podcast-api-go"
+	listennotes "github.com/ListenNotes/podcast-api-go/v3"
 )
 
 func TestMockURL(t *testing.T) {

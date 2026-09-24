@@ -2,25 +2,54 @@ name: Go CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ['1.26.x', 'stable']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          cache: false
+      - run: go test -race -count=1 ./...
+      - run: go vet ./...
+      - run: go build ./...
 
-  build:
+  quality:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - run: test -z "$(gofmt -l .)"
+      - run: go mod tidy -diff
+      - name: Verify standalone source distribution
+        run: |
+          sdk_archive_dir=$(mktemp -d)
+          git archive HEAD | tar -x -C "$sdk_archive_dir"
+          cd "$sdk_archive_dir"
+          GOPROXY=off go test -count=1 ./...
+          GOPROXY=off go build ./...
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: 1.24
-    - name: Install dependencies
-      run: |
-        go version
-        go get -u golang.org/x/lint/golint
-        
-    - name: Test
-      run: make test
+  mock-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - run: go test -tags=integration -run '^TestMockIntegration' -count=1 -timeout=3m ./...
