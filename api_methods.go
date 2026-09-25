@@ -32,6 +32,7 @@ type HTTPClient interface {
 	FetchPodcastsByDomain(domainName string, args map[string]string) (*Response, error)
 	CreatePlaylist(args map[string]string) (*Response, error)
 	UpdatePlaylist(id string, args map[string]string) (*Response, error)
+	DeletePlaylist(id string, args map[string]string) (*Response, error)
 	AddPlaylistItem(id string, args map[string]string) (*Response, error)
 	DeletePlaylistItem(id string, itemID string, args map[string]string) (*Response, error)
 	UpdatePlaylistItemNotes(id string, itemID string, args map[string]string) (*Response, error)
@@ -197,6 +198,12 @@ func (c *standardHTTPClient) CreatePlaylist(args map[string]string) (*Response, 
 // See https://www.listennotes.com/api/docs/#put-api-v2-playlists-id.
 func (c *standardHTTPClient) UpdatePlaylist(id string, args map[string]string) (*Response, error) {
 	return c.requestAPI(http.MethodPut, "/playlists/{id}", []pathParam{{"id", id}}, nil, args)
+}
+
+// DeletePlaylist: Delete a playlist.
+// See https://www.listennotes.com/api/docs/#delete-api-v2-playlists-id.
+func (c *standardHTTPClient) DeletePlaylist(id string, args map[string]string) (*Response, error) {
+	return c.requestAPI(http.MethodDelete, "/playlists/{id}", []pathParam{{"id", id}}, nil, args)
 }
 
 // AddPlaylistItem: Add an episode or podcast to a playlist.
