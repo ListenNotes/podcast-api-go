@@ -43,7 +43,7 @@ func loadSDKContract(t *testing.T) []sdkOperation {
 	if err := json.Unmarshal(data, &contract); err != nil {
 		t.Fatal(err)
 	}
-	if contract.Version != Version || len(contract.Operations) != 30 {
+	if contract.Version != Version || len(contract.Operations) != 31 {
 		t.Fatalf("unexpected contract version/method count: %s/%d", contract.Version, len(contract.Operations))
 	}
 	return contract.Operations
@@ -160,6 +160,39 @@ func TestNestedPathsAndEmptyValues(t *testing.T) {
 	}
 }
 
+func TestDeletePlaylistEncodesIDWithoutQueryOrBody(t *testing.T) {
+	for name, args := range map[string]map[string]string{"nil": nil, "empty": {}, "path field": {"id": "must-not-leak"}} {
+		t.Run(name, func(t *testing.T) {
+			id := "abc/def?# café%"
+			before := maps.Clone(args)
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests.Add(1)
+				if r.Method != http.MethodDelete || r.URL.EscapedPath() != "/api/v2/playlists/"+url.PathEscape(id) || r.URL.RawQuery != "" {
+					t.Errorf("incorrect deletion request: %s %s", r.Method, r.URL)
+				}
+				body, _ := io.ReadAll(r.Body)
+				if len(body) != 0 || r.Header.Get("Content-Type") != "" {
+					t.Error("playlist deletion must not send a request body or content type")
+				}
+				w.Header().Set(ResponseHeaderKeyUsage, "12")
+				json.NewEncoder(w).Encode(map[string]interface{}{"id": id, "deleted": true})
+			}))
+			defer server.Close()
+			response, err := NewClient("fixture-key", WithBaseURL(server.URL+"/api/v2")).DeletePlaylist(id, args)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if response.StatusCode != 200 || response.Data["id"] != id || response.Data["deleted"] != true || response.Stats.Usage != 12 {
+				t.Fatalf("lost deletion response details: %+v", response)
+			}
+			if requests.Load() != 1 || !maps.Equal(args, before) {
+				t.Fatal("deletion retried or changed the caller's parameters")
+			}
+		})
+	}
+}
+
 func TestWriteQueryAndBodyFieldsAreSeparated(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, _ := io.ReadAll(r.Body)
@@ -177,7 +210,7 @@ func TestWriteQueryAndBodyFieldsAreSeparated(t *testing.T) {
 }
 
 func TestHTTPFailuresRetainDetailsAndNeverRetry(t *testing.T) {
-	for _, code := range []int{301, 307, 400, 401, 403, 404, 405, 418, 429, 500, 502, 503} {
+	for _, code := range []int{301, 302, 307, 308, 400, 401, 403, 404, 405, 418, 429, 500, 502, 503} {
 		t.Run(fmt.Sprint(code), func(t *testing.T) {
 			var requests atomic.Int32
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -188,23 +221,30 @@ func TestHTTPFailuresRetainDetailsAndNeverRetry(t *testing.T) {
 				fmt.Fprint(w, "exact server explanation")
 			}))
 			defer server.Close()
-			response, err := NewClient("", WithBaseURL(server.URL)).CreatePlaylist(map[string]string{"name": "fixture"})
-			var apiError *APIError
-			if !errors.As(err, &apiError) || apiError.StatusCode != code || apiError.Body != "exact server explanation" || apiError.Headers.Get("X-Fixture") != "retained" {
-				t.Fatalf("missing HTTP error context: %v", err)
-			}
-			if response == nil || response.Stats.Usage != 10 || response.Body != apiError.Body || requests.Load() != 1 {
-				t.Fatal("lost response or retried write")
-			}
-			expected := errMap[code]
-			if expected == nil {
-				expected = ErrUnexpectedStatus
-				if code >= 500 {
-					expected = ErrInternalServerError
+			client := NewClient("", WithBaseURL(server.URL))
+			for index, operation := range []string{"createPlaylist", "deletePlaylist"} {
+				args := map[string]string{"name": "fixture"}
+				if operation == "deletePlaylist" {
+					args = map[string]string{"id": "fixture"}
 				}
-			}
-			if !errors.Is(err, expected) {
-				t.Fatalf("wrong classification: %v", err)
+				response, err := callSDKMethod(client, operation, args)
+				var apiError *APIError
+				if !errors.As(err, &apiError) || apiError.StatusCode != code || apiError.Body != "exact server explanation" || apiError.Headers.Get("X-Fixture") != "retained" {
+					t.Fatalf("missing HTTP error context: %v", err)
+				}
+				if response == nil || response.Stats.Usage != 10 || response.Body != apiError.Body || requests.Load() != int32(index+1) {
+					t.Fatal("lost response or retried write")
+				}
+				expected := errMap[code]
+				if expected == nil {
+					expected = ErrUnexpectedStatus
+					if code >= 500 {
+						expected = ErrInternalServerError
+					}
+				}
+				if !errors.Is(err, expected) {
+					t.Fatalf("wrong classification: %v", err)
+				}
 			}
 		})
 	}
@@ -232,9 +272,15 @@ func TestDefaultRedirectsAndClientIsolation(t *testing.T) {
 	if _, err := NewClient("fixture-key", WithBaseURL(redirect.URL)).Search(nil); !errors.Is(err, ErrUnexpectedStatus) || leaked.Load() != 0 {
 		t.Fatalf("redirect followed: %v", err)
 	}
+	if _, err := NewClient("fixture-key", WithBaseURL(redirect.URL)).DeletePlaylist("list", nil); !errors.Is(err, ErrUnexpectedStatus) || leaked.Load() != 0 {
+		t.Fatalf("deletion redirect followed: %v", err)
+	}
 	var seen sync.Map
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seen.Store(r.URL.Query().Get("q"), r.Header.Get(RequestHeaderKeyAPI))
+		if r.Method == http.MethodDelete {
+			seen.Store(r.URL.Path, r.Header.Get(RequestHeaderKeyAPI))
+		}
 		fmt.Fprint(w, `{}`)
 	}))
 	defer server.Close()
@@ -250,6 +296,9 @@ func TestDefaultRedirectsAndClientIsolation(t *testing.T) {
 			if _, err := client.Search(map[string]string{"q": fmt.Sprint(i % 2)}); err != nil {
 				t.Error(err)
 			}
+			if _, err := client.DeletePlaylist(fmt.Sprint(i%2), nil); err != nil {
+				t.Error(err)
+			}
 		})
 	}
 	wg.Wait()
@@ -258,6 +307,12 @@ func TestDefaultRedirectsAndClientIsolation(t *testing.T) {
 	}
 	if key, _ := seen.Load("1"); key != "second" {
 		t.Error("second key was overwritten")
+	}
+	if key, _ := seen.Load("/playlists/0"); key != "first" {
+		t.Error("first deletion key was overwritten")
+	}
+	if key, _ := seen.Load("/playlists/1"); key != "second" {
+		t.Error("second deletion key was overwritten")
 	}
 }
 
@@ -281,6 +336,9 @@ func TestTimeoutAndInvalidParameters(t *testing.T) {
 	defer fast.Close()
 	client = NewClient("", WithBaseURL(fast.URL), WithHTTPClient(nil), nil)
 	for _, id := range []string{"", ".", ".."} {
+		if _, err := client.DeletePlaylist(id, nil); err == nil {
+			t.Errorf("accepted invalid playlist deletion identifier %q", id)
+		}
 		if _, err := client.DeletePlaylistItem(id, "23", nil); err == nil {
 			t.Errorf("accepted invalid playlist identifier %q", id)
 		}

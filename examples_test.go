@@ -277,6 +277,16 @@ func ExampleHTTPClient_UpdatePlaylist() {
 	fmt.Println(response.ToJSON())
 }
 
+func ExampleHTTPClient_DeletePlaylist() {
+	client := listennotes.NewClient("")
+	response, err := client.DeletePlaylist("m1pe7z60bsw", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}
+
 func ExampleHTTPClient_AddPlaylistItem() {
 	client := listennotes.NewClient("")
 	response, err := client.AddPlaylistItem("m1pe7z60bsw", map[string]string{"episode_id": "e53e6992a5b7492f9ea6fcd85d9ad95f", "notes": "Worth a listen."})

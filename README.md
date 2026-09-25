@@ -47,13 +47,20 @@ and redirects disabled. The SDK does not add retries. `WithHTTPClient` accepts
 your own HTTP client and its timeout, redirect, proxy, and transport policies.
 `WithBaseURL` supports local test servers and sends your key to that chosen URL.
 
+### Upgrading from 3.0
+
+The `HTTPClient` interface now also requires
+`DeletePlaylist(id string, args map[string]string) (*Response, error)`.
+Custom implementations and mocks of this interface must add the method.
+Clients returned by `NewClient` already implement it.
+
 ### Upgrading from 1.x
 
 - Change imports and `go get` commands to
   `github.com/ListenNotes/podcast-api-go/v3`, as required by Go module versioning.
 - Use Go 1.26+. Existing method names, positional identifiers, string parameter
   maps, `Response.Data`, `Response.Stats`, and `ToJSON()` remain available.
-- The `HTTPClient` interface adds five playlist methods; custom implementations
+- The `HTTPClient` interface adds six playlist write methods; custom implementations
   of that interface must add them too.
 - Match errors with `errors.Is(err, listennotes.ErrUnauthorized)`, replacing
   direct equality checks. Use `errors.As(err, &apiError)` with
@@ -90,14 +97,14 @@ go test -tags=integration -run '^TestMockIntegration' -count=1 -timeout=3m ./...
 ```
 
 Integration tests use only the fixed public mock origin, with no API key,
-environment-selected destination, proxy, or redirects. They cover all 30 methods.
+environment-selected destination, proxy, or redirects. They cover all 31 methods.
 The mock is stateless; these tests do not establish production write persistence
 or authorization. `go run ./example` makes one explicit read-only mock request.
 
 The monorepo's `sync.py go` generates methods, the contract, test dispatch,
 compile-only examples, and the marked README sections. Do not hand-edit generated
 outputs. This module builds and tests independently of the monorepo. Publishing
-the `v3.0.0` Git tag and enabling website snippets are separate release steps.
+the `v3.1.0` Git tag and enabling website snippets are separate release steps.
 
 ## Method index
 
@@ -130,6 +137,7 @@ the `v3.0.0` Git tag and enabling website snippets are separate release steps.
 - [`FetchPodcastsByDomain`](#fetchpodcastsbydomain) — `GET /podcasts/domains/{domain_name}`
 - [`CreatePlaylist`](#createplaylist) — `POST /playlists`
 - [`UpdatePlaylist`](#updateplaylist) — `PUT /playlists/{id}`
+- [`DeletePlaylist`](#deleteplaylist) — `DELETE /playlists/{id}`
 - [`AddPlaylistItem`](#addplaylistitem) — `POST /playlists/{id}/items`
 - [`DeletePlaylistItem`](#deleteplaylistitem) — `DELETE /playlists/{id}/items/{item_id}`
 - [`UpdatePlaylistItemNotes`](#updateplaylistitemnotes) — `PUT /playlists/{id}/items/{item_id}`
@@ -962,6 +970,39 @@ func main() {
 ```
 
 [Full API documentation](https://www.listennotes.com/api/docs/#put-api-v2-playlists-id)
+
+### DeletePlaylist
+
+Delete a playlist.
+
+`DELETE /playlists/{id}`
+
+Permanently delete a playlist, including all episode and podcast references saved in this specific playlist and their notes. The actual episodes and podcasts remain in the Listen Notes podcast database.
+
+**Warning: Deletion cannot be undone. Once deleted, the playlist is gone, regardless of how many episodes or podcasts it contains. You, the developer, are responsible for adding a confirmation step in your app's UI before calling this endpoint to prevent accidental deletion.**
+
+Only playlists owned by your admin API account can be modified; contributor membership does not grant write access.
+
+```go
+package main
+
+import (
+	"fmt"
+	listennotes "github.com/ListenNotes/podcast-api-go/v3"
+)
+
+func main() {
+	client := listennotes.NewClient("")
+	response, err := client.DeletePlaylist("m1pe7z60bsw", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}
+```
+
+[Full API documentation](https://www.listennotes.com/api/docs/#delete-api-v2-playlists-id)
 
 ### AddPlaylistItem
 

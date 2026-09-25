@@ -57,6 +57,8 @@ func callSDKMethod(client HTTPClient, operation string, args map[string]string) 
 		return client.CreatePlaylist(args)
 	case "updatePlaylist":
 		return client.UpdatePlaylist(args["id"], args)
+	case "deletePlaylist":
+		return client.DeletePlaylist(args["id"], args)
 	case "addPlaylistItem":
 		return client.AddPlaylistItem(args["id"], args)
 	case "deletePlaylistItem":

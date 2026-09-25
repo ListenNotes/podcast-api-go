@@ -89,6 +89,13 @@ func TestMockIntegrationAllMethods(t *testing.T) {
 				if response.Data["deleted"] != true {
 					t.Error("missing deletion confirmation")
 				}
+			case "deletePlaylist":
+				if response.Data["deleted"] != true || response.Data["id"] != op.ExampleParams["id"] {
+					t.Error("incorrect playlist deletion confirmation")
+				}
+				if guard.last.URL.Path != "/api/v2/playlists/m1pe7z60bsw" || guard.last.URL.RawQuery != "" || guard.body != "" || guard.last.Header.Get("Content-Type") != "" {
+					t.Errorf("incorrect playlist deletion request: %s", guard.last.URL)
+				}
 			}
 		})
 		time.Sleep(100 * time.Millisecond)
