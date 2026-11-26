@@ -316,3 +316,43 @@ func ExampleHTTPClient_UpdatePlaylistItemNotes() {
 	}
 	fmt.Println(response.ToJSON())
 }
+
+func ExampleHTTPClient_EstimateEpisodeTranscription() {
+	client := listennotes.NewClient("")
+	response, err := client.EstimateEpisodeTranscription("dc09fd798802477b8dba0ca1e10134fa", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}
+
+func ExampleHTTPClient_TranscribeEpisode() {
+	client := listennotes.NewClient("")
+	response, err := client.TranscribeEpisode("1871d978bdc648588441bc5649857ddb", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}
+
+func ExampleHTTPClient_GetEpisodeTranscript() {
+	client := listennotes.NewClient("")
+	response, err := client.GetEpisodeTranscript("1871d978bdc648588441bc5649857ddb", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}
+
+func ExampleHTTPClient_ListTranscripts() {
+	client := listennotes.NewClient("")
+	response, err := client.ListTranscripts(map[string]string{"limit": "20"})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(response.ToJSON())
+}

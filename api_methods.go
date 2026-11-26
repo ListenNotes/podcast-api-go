@@ -36,6 +36,10 @@ type HTTPClient interface {
 	AddPlaylistItem(id string, args map[string]string) (*Response, error)
 	DeletePlaylistItem(id string, itemID string, args map[string]string) (*Response, error)
 	UpdatePlaylistItemNotes(id string, itemID string, args map[string]string) (*Response, error)
+	EstimateEpisodeTranscription(id string, args map[string]string) (*Response, error)
+	TranscribeEpisode(id string, args map[string]string) (*Response, error)
+	GetEpisodeTranscript(id string, args map[string]string) (*Response, error)
+	ListTranscripts(args map[string]string) (*Response, error)
 }
 
 // Search: Full-text search
@@ -222,4 +226,28 @@ func (c *standardHTTPClient) DeletePlaylistItem(id string, itemID string, args m
 // See https://www.listennotes.com/api/docs/#put-api-v2-playlists-id-items-item_id.
 func (c *standardHTTPClient) UpdatePlaylistItemNotes(id string, itemID string, args map[string]string) (*Response, error) {
 	return c.requestAPI(http.MethodPut, "/playlists/{id}/items/{item_id}", []pathParam{{"id", id}, {"item_id", itemID}}, nil, args)
+}
+
+// EstimateEpisodeTranscription: Estimate episode transcription cost
+// See https://www.listennotes.com/api/docs/#get-api-v2-episodes-id-transcript-estimate.
+func (c *standardHTTPClient) EstimateEpisodeTranscription(id string, args map[string]string) (*Response, error) {
+	return c.requestAPI(http.MethodGet, "/episodes/{id}/transcript/estimate", []pathParam{{"id", id}}, nil, args)
+}
+
+// TranscribeEpisode: Request episode transcription
+// See https://www.listennotes.com/api/docs/#post-api-v2-episodes-id-transcript.
+func (c *standardHTTPClient) TranscribeEpisode(id string, args map[string]string) (*Response, error) {
+	return c.requestAPI(http.MethodPost, "/episodes/{id}/transcript", []pathParam{{"id", id}}, nil, args)
+}
+
+// GetEpisodeTranscript: Get episode transcription status and downloads
+// See https://www.listennotes.com/api/docs/#get-api-v2-episodes-id-transcript.
+func (c *standardHTTPClient) GetEpisodeTranscript(id string, args map[string]string) (*Response, error) {
+	return c.requestAPI(http.MethodGet, "/episodes/{id}/transcript", []pathParam{{"id", id}}, nil, args)
+}
+
+// ListTranscripts: List completed episode transcripts
+// See https://www.listennotes.com/api/docs/#get-api-v2-transcripts.
+func (c *standardHTTPClient) ListTranscripts(args map[string]string) (*Response, error) {
+	return c.requestAPI(http.MethodGet, "/transcripts", nil, []string{"limit", "cursor"}, args)
 }
