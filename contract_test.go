@@ -43,7 +43,7 @@ func loadSDKContract(t *testing.T) []sdkOperation {
 	if err := json.Unmarshal(data, &contract); err != nil {
 		t.Fatal(err)
 	}
-	if contract.Version != Version || len(contract.Operations) != 31 {
+	if contract.Version != Version || len(contract.Operations) != 35 {
 		t.Fatalf("unexpected contract version/method count: %s/%d", contract.Version, len(contract.Operations))
 	}
 	return contract.Operations
