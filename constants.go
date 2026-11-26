@@ -1,7 +1,7 @@
 package listennotes
 
 // Version is the SDK version sent in the User-Agent header.
-const Version = "3.1.0"
+const Version = "3.2.0"
 
 // Base urls for access the available api endpoints
 const (

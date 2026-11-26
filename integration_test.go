@@ -59,8 +59,11 @@ func TestMockIntegrationAllMethods(t *testing.T) {
 				t.Fatal(err)
 			}
 			status := 200
-			if op.OperationID == "createPlaylist" || op.OperationID == "addPlaylistItem" {
+			switch op.OperationID {
+			case "createPlaylist", "addPlaylistItem":
 				status = 201
+			case "transcribeEpisode":
+				status = 202
 			}
 			if guard.last.Method != op.Method || response.StatusCode != status || len(response.Data) == 0 {
 				t.Fatalf("unexpected response: %+v", response)
@@ -88,6 +91,14 @@ func TestMockIntegrationAllMethods(t *testing.T) {
 			case "deletePlaylistItem":
 				if response.Data["deleted"] != true {
 					t.Error("missing deletion confirmation")
+				}
+			case "transcribeEpisode":
+				if response.Data["status"] != "queued" || guard.body != "" {
+					t.Error("expected a bodyless submission and queued response")
+				}
+			case "getEpisodeTranscript":
+				if response.Data["status"] != "completed" || response.Data["download_urls"] == nil {
+					t.Error("expected completed transcript and download URLs")
 				}
 			case "deletePlaylist":
 				if response.Data["deleted"] != true || response.Data["id"] != op.ExampleParams["id"] {

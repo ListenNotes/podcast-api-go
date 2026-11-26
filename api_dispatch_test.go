@@ -65,6 +65,14 @@ func callSDKMethod(client HTTPClient, operation string, args map[string]string) 
 		return client.DeletePlaylistItem(args["id"], args["item_id"], args)
 	case "updatePlaylistItemNotes":
 		return client.UpdatePlaylistItemNotes(args["id"], args["item_id"], args)
+	case "estimateEpisodeTranscription":
+		return client.EstimateEpisodeTranscription(args["id"], args)
+	case "transcribeEpisode":
+		return client.TranscribeEpisode(args["id"], args)
+	case "getEpisodeTranscript":
+		return client.GetEpisodeTranscript(args["id"], args)
+	case "listTranscripts":
+		return client.ListTranscripts(args)
 	default:
 		panic("unknown operation: " + operation)
 	}
